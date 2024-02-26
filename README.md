@@ -1,7 +1,7 @@
 # ansar-services
 Methods and materials for construction of ansar networks
 
-This repo contains the files and commands to manufacture two components
+This repo contains the files and commands needed to manufacture two components
 of ansar networking. These are;
 
 * the ansar directory that runs at HOST level,
@@ -19,6 +19,7 @@ host designated to be the ansar LAN directory.
 To enable full ansar networking capabilities within a development or operational
 host, install the ansar-host.service;
 
+```
 git clone git@github.com:mr-ansar/ansar-services.git
 cd ansar-services
 python3 -m venv .dev
@@ -30,12 +31,14 @@ sudo systemctl status ansar-host.service
 ansar status -ll -ar -g
 ansar log directory-host
 sudo systemctl status ansar-host.service
+```
 
 To enable full ansar networking capabilities within the scope of a
 LAN, install the ansar-lan.service. There is exactly one or none
 instances of this service in any given LAN. The target host is assumed
 to be a 24-by-7 server.
 
+```
 git clone git@github.com:mr-ansar/ansar-services.git
 cd ansar-services
 python3 -m venv .dev
@@ -47,3 +50,5 @@ sudo systemctl status ansar-lan.service
 ansar status -ll -ar -g
 ansar log directory-lan
 sudo systemctl status ansar-lan.service
+```
+
