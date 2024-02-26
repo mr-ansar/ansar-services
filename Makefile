@@ -20,9 +20,16 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+BACK?=10m
 
 # Normal use;
-all: home
+all:
+	@echo 'Build host or lan services "directory-host-service" or "directory-lan-service"'
+	@echo 'Then use "start" to execute the related software under the systemd framework.'
+	@echo '$$ make directory-host-service'
+	@echo '$$ make start'
+	@echo '$$ make status'
+	@echo '$$ make log BACK=10d'
 
 # Useful lists of file names relating to executables
 EXECUTABLES := ansar-group ansar-fixed ansar-instant
@@ -42,15 +49,13 @@ dist/ansar-fixed:
 dist/ansar-instant:
 	pyinstaller --onefile --log-level ERROR -p . `which ansar-instant`
 
-#
-#
+# Build portable images of the python scripts
 build:: $(BUILD)
 
 clean-build::
 	-rm -rf build dist *.spec
 
-#
-#
+# Form the process container.
 ANSAR=.ansar-home
 
 $(ANSAR): build
@@ -59,6 +64,7 @@ $(ANSAR): build
 
 home: $(ANSAR)
 
+# Populate the container with images for specific targets.
 directory-host: home
 	ansar add ansar-fixed directory-host
 	ansar settings directory-host --settings-file=directory-host-settings
@@ -76,10 +82,9 @@ directory-lan: home
 clean-home:: clean-build
 	ansar -f destroy
 
-#
-#
+# Create the service files as a collection of long-form make strings.
 SYSTEM_D=/etc/systemd/system
-DIRECTORY_HOST=ansar-directory-host
+DIRECTORY_HOST=ansar-host
 DIRECTORY_HOST_SERVICE=$(DIRECTORY_HOST).service
 DIRECTORY_HOST_INSTALLED=$(SYSTEM_D)/$(DIRECTORY_HOST_SERVICE)
 
@@ -114,7 +119,7 @@ endef
 
 #
 #
-DIRECTORY_LAN=ansar-directory-lan
+DIRECTORY_LAN=ansar-lan
 DIRECTORY_LAN_SERVICE=$(DIRECTORY_LAN).service
 DIRECTORY_LAN_INSTALLED=$(SYSTEM_D)/$(DIRECTORY_LAN_SERVICE)
 
@@ -147,8 +152,10 @@ source .dev/bin/activate
 ansar --force stop directory-lan
 endef
 
-#
-#
+# Form a systemd service.
+# Generate service, start and stop files.
+# Link service file into systemd
+# Use systemctl commands to install the service.
 export D_HOST_SERVICE
 $(DIRECTORY_HOST).service:
 	echo "$$D_HOST_SERVICE" > $(DIRECTORY_HOST).service
@@ -215,8 +222,9 @@ clean-directory-lan:
 	sudo rm $(DIRECTORY_LAN_INSTALLED)
 	sudo rm $(DIRECTORY_LAN).service $(DIRECTORY_LAN)-start $(DIRECTORY_LAN)-stop
 
-#
-#
+# A few shorthands. Note use of ansar command
+# for status and log. Ansar can only be used in a
+# read-only fashion. Do not stop/start with ansar.
 start:
 	sudo systemctl start *.service
 
@@ -224,4 +232,9 @@ stop:
 	sudo systemctl stop *.service
 
 status:
-	ansar status -ll -ar -g
+	@ansar status -ll -ar -g
+
+# Extract a page of logging for the installed service.
+log:
+	-@[ -e ansar-host.service ] && ansar log directory-host --back=$(BACK) "--count=`tput lines`" || true
+	-@[ -e ansar-lan.service ] && ansar log directory-lan --back=$(BACK) "--count=`tput lines`" || true
