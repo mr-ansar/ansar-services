@@ -18,8 +18,8 @@ host designated to be the ansar LAN directory.
 
 > Default use of the commands in this repo assume a standard configuration
 > for ansar networking. This includes use of a standard port (32175) and a
-> standard IP address (192.168.1.176). Different values can be used by editing
-> the directory-host-settings and directory-lan-settings before service
+> standard IP address (192.168.1.176). Different values can be adopted by editing
+> the directory-host-settings and directory-lan-settings files before service
 > construction begins. Refer to ansar-connect documentation for further
 > details.
 
