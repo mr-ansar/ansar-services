@@ -20,8 +20,8 @@ host designated to be the ansar LAN directory.
 > for ansar networking. This includes use of a standard port (32175) and a
 > standard IP address (192.168.1.176). Different values can be adopted by editing
 > the directory-host-settings and directory-lan-settings files before service
-> construction begins. Refer to ansar-connect documentation for further
-> details.
+> construction begins. Use of non-standard values requires on-going administrative
+> discipline. Refer to ansar-connect documentation for further details.
 
 To enable full ansar networking capabilities within a development or operational
 host, install the ansar-host.service;
@@ -41,7 +41,8 @@ make log
 To enable full ansar networking capabilities within the scope of a
 LAN, install the ansar-lan.service. There is exactly one or none
 instances of this service in any given LAN. The target host is assumed
-to be a 24-by-7 server.
+to be a 24-by-7 server, located at an expected IP address (see note
+above).
 
 ```
 git clone git@github.com:mr-ansar/ansar-services.git
