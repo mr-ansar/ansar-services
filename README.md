@@ -26,11 +26,9 @@ python3 -m venv .dev
 source .dev/bin/activate
 pip3 install pyinstaller ansar-connect
 make directory-host-service
-sudo systemctl start ansar-host.service 
-sudo systemctl status ansar-host.service 
-ansar status -ll -ar -g
-ansar log directory-host
-sudo systemctl status ansar-host.service
+make start
+make status
+make log
 ```
 
 To enable full ansar networking capabilities within the scope of a
@@ -45,10 +43,7 @@ python3 -m venv .dev
 source .dev/bin/activate
 pip3 install pyinstaller ansar-connect
 make directory-lan-service
-sudo systemctl start ansar-lan.service 
-sudo systemctl status ansar-lan.service 
-ansar status -ll -ar -g
-ansar log directory-lan
-sudo systemctl status ansar-lan.service
+make start
+make status
+make log
 ```
-
