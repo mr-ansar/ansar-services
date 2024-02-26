@@ -16,6 +16,13 @@ a host supporting normal multi-processing and ansar networking, such as a
 development machine or an operational host. The other type of target is the
 host designated to be the ansar LAN directory.
 
+> Default use of the commands in this repo assume a standard configuration
+> for ansar networking. This includes use of a standard port (32175) and a
+> standard IP address (192.168.1.176). Different values can be used by editing
+> the directory-host-settings and directory-lan-settings before service
+> construction begins. Refer to ansar-connect documentation for further
+> details.
+
 To enable full ansar networking capabilities within a development or operational
 host, install the ansar-host.service;
 
