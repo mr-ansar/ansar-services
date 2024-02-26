@@ -1,0 +1,227 @@
+# Author: Scott Woods <scott.18.ansar@gmail.com.com>
+# MIT License
+#
+# Copyright (c) 2022-2024
+#
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
+#
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
+#
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
+
+# Normal use;
+all: home
+
+# Useful lists of file names relating to executables
+EXECUTABLES := ansar-group ansar-fixed ansar-instant
+BUILD := $(EXECUTABLES:%=dist/%)
+
+# Default rule to turn a python script into an executable.
+dist/% : %.py
+	pyinstaller --onefile --log-level ERROR -p . $<
+
+# Specific rules for library scripts.
+dist/ansar-group:
+	pyinstaller --onefile --log-level ERROR -p . `which ansar-group`
+
+dist/ansar-fixed:
+	pyinstaller --onefile --log-level ERROR -p . `which ansar-fixed`
+
+dist/ansar-instant:
+	pyinstaller --onefile --log-level ERROR -p . `which ansar-instant`
+
+#
+#
+build:: $(BUILD)
+
+clean-build::
+	-rm -rf build dist *.spec
+
+#
+#
+ANSAR=.ansar-home
+
+$(ANSAR): build
+	ansar create
+	ansar deploy dist
+
+home: $(ANSAR)
+
+directory-host: home
+	ansar add ansar-fixed directory-host
+	ansar settings directory-host --settings-file=directory-host-settings
+	ansar run --group-name=directory-host --create-group
+	ansar settings group.directory-host --settings-file=group-directory-host-settings
+	ansar set retry group.directory-host --property-file=back-end-retry
+
+directory-lan: home
+	ansar add ansar-fixed directory-lan
+	ansar settings directory-lan --settings-file=directory-lan-settings
+	ansar run --group-name=directory-lan --create-group
+	ansar settings group.directory-lan --settings-file=group-directory-lan-settings
+	ansar set retry group.directory-lan --property-file=back-end-retry
+
+clean-home:: clean-build
+	ansar -f destroy
+
+#
+#
+SYSTEM_D=/etc/systemd/system
+DIRECTORY_HOST=ansar-directory-host
+DIRECTORY_HOST_SERVICE=$(DIRECTORY_HOST).service
+DIRECTORY_HOST_INSTALLED=$(SYSTEM_D)/$(DIRECTORY_HOST_SERVICE)
+
+define D_HOST_SERVICE
+[Unit]
+Description=Ansar Directory (HOST)
+After=network.target
+
+[Service]
+User=$(USERNAME)
+Type=forking
+ExecStart=/usr/bin/env $(PWD)/$(DIRECTORY_HOST)-start
+ExecStop=/usr/bin/env $(PWD)/$(DIRECTORY_HOST)-stop
+
+[Install]
+WantedBy=multi-user.target
+endef
+
+define D_HOST_START
+#!/usr/bin/env bash
+cd $(PWD)
+source .dev/bin/activate
+ansar start directory-host --group-name=directory-host
+endef
+
+define D_HOST_STOP
+#!/usr/bin/env bash
+cd $(PWD)
+source .dev/bin/activate
+ansar --force stop directory-host
+endef
+
+#
+#
+DIRECTORY_LAN=ansar-directory-lan
+DIRECTORY_LAN_SERVICE=$(DIRECTORY_LAN).service
+DIRECTORY_LAN_INSTALLED=$(SYSTEM_D)/$(DIRECTORY_LAN_SERVICE)
+
+define D_LAN_SERVICE
+[Unit]
+Description=Ansar Directory (LAN)
+After=network.target
+
+[Service]
+User=$(USERNAME)
+Type=forking
+ExecStart=/usr/bin/env $(PWD)/$(DIRECTORY_LAN)-start
+ExecStop=/usr/bin/env $(PWD)/$(DIRECTORY_LAN)-stop
+
+[Install]
+WantedBy=multi-user.target
+endef
+
+define D_LAN_START
+#!/usr/bin/env bash
+cd $(PWD)
+source .dev/bin/activate
+ansar start directory-lan --group-name=directory-lan
+endef
+
+define D_LAN_STOP
+#!/usr/bin/env bash
+cd $(PWD)
+source .dev/bin/activate
+ansar --force stop directory-lan
+endef
+
+#
+#
+export D_HOST_SERVICE
+$(DIRECTORY_HOST).service:
+	echo "$$D_HOST_SERVICE" > $(DIRECTORY_HOST).service
+	chmod 644 $(DIRECTORY_HOST).service
+
+export D_HOST_START
+$(DIRECTORY_HOST)-start:
+	echo "$$D_HOST_START" > $(DIRECTORY_HOST)-start
+	chmod 775 $(DIRECTORY_HOST)-start
+
+export D_HOST_STOP
+$(DIRECTORY_HOST)-stop:
+	echo "$$D_HOST_STOP" > $(DIRECTORY_HOST)-stop
+	chmod 775 $(DIRECTORY_HOST)-stop
+
+directory-host-files: $(DIRECTORY_HOST).service $(DIRECTORY_HOST)-start $(DIRECTORY_HOST)-stop
+
+$(DIRECTORY_HOST_INSTALLED): directory-host directory-host-files
+	sudo ln $(DIRECTORY_HOST_SERVICE) $(SYSTEM_D)
+	sudo systemctl daemon-reload
+	sudo systemctl enable $(DIRECTORY_HOST_SERVICE)
+
+directory-host-service: $(DIRECTORY_HOST_INSTALLED)
+
+clean-directory-host:
+	[ -e "$(DIRECTORY_HOST_INSTALLED)" ]
+	sudo systemctl stop $(DIRECTORY_HOST_SERVICE)
+	sudo systemctl disable $(DIRECTORY_HOST_SERVICE)
+	sudo systemctl daemon-reload
+	sudo rm $(DIRECTORY_HOST_INSTALLED)
+	sudo rm $(DIRECTORY_HOST).service $(DIRECTORY_HOST)-start $(DIRECTORY_HOST)-stop
+
+#
+#
+export D_LAN_SERVICE
+$(DIRECTORY_LAN).service:
+	echo "$$D_LAN_SERVICE" > $(DIRECTORY_LAN).service
+	chmod 644 $(DIRECTORY_LAN).service
+
+export D_LAN_START
+$(DIRECTORY_LAN)-start:
+	echo "$$D_LAN_START" > $(DIRECTORY_LAN)-start
+	chmod 775 $(DIRECTORY_LAN)-start
+
+export D_LAN_STOP
+$(DIRECTORY_LAN)-stop:
+	echo "$$D_LAN_STOP" > $(DIRECTORY_LAN)-stop
+	chmod 775 $(DIRECTORY_LAN)-stop
+
+directory-lan-files: $(DIRECTORY_LAN).service $(DIRECTORY_LAN)-start $(DIRECTORY_LAN)-stop
+
+$(DIRECTORY_LAN_INSTALLED): directory-lan directory-lan-files
+	sudo ln $(DIRECTORY_LAN_SERVICE) $(SYSTEM_D)
+	sudo systemctl daemon-reload
+	sudo systemctl enable $(DIRECTORY_LAN_SERVICE)
+
+directory-lan-service: $(DIRECTORY_LAN_INSTALLED)
+
+clean-directory-lan:
+	[ -e "$(DIRECTORY_LAN_INSTALLED)" ]
+	sudo systemctl stop $(DIRECTORY_LAN_SERVICE)
+	sudo systemctl disable $(DIRECTORY_LAN_SERVICE)
+	sudo systemctl daemon-reload
+	sudo rm $(DIRECTORY_LAN_INSTALLED)
+	sudo rm $(DIRECTORY_LAN).service $(DIRECTORY_LAN)-start $(DIRECTORY_LAN)-stop
+
+#
+#
+start:
+	sudo systemctl start *.service
+
+stop:
+	sudo systemctl stop *.service
+
+status:
+	ansar status -ll -ar -g

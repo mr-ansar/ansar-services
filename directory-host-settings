@@ -1,0 +1,17 @@
+{
+    "value": {
+        "accept_below": {
+                "host": "127.0.0.1",
+                "port": 32175
+	},
+        "connect_above": [
+            "ansar.connect.socketry.HostPort",
+            {
+                "host": "192.168.1.176",
+                "port": 32175
+            },
+            []
+        ],
+        "directory_scope": "HOST"
+    }
+}

@@ -1,0 +1,9 @@
+{
+    "value": {
+        "first_steps": [],
+        "regular_steps": 8.0,
+        "step_limit": null,
+	"randomized": 0.25,
+	"truncated": 0.5
+    }
+}
