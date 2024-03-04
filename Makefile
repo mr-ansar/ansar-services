@@ -25,6 +25,7 @@ BACK?=10m
 # Normal use;
 all:
 	@echo 'Build host or lan services "directory-host-service" or "directory-lan-service"'
+	@echo 'Refer to README for details on setup of python environment.'
 	@echo 'Then use "start" to execute the related software under the systemd framework.'
 	@echo '$$ make directory-host-service'
 	@echo '$$ make start'
@@ -67,17 +68,21 @@ home: $(ANSAR)
 # Populate the container with images for specific targets.
 directory-host: home
 	ansar add ansar-fixed directory-host
+	ansar add ansar-instant instant-host
 	ansar settings directory-host --settings-file=directory-host-settings
-	ansar run --group-name=directory-host --create-group
-	ansar settings group.directory-host --settings-file=group-directory-host-settings
-	ansar set retry group.directory-host --property-file=back-end-retry
+	ansar settings instant-host --settings-file=instant-host-settings
+	ansar run --group-name=default --create-group
+	ansar settings group.default --settings-file=group-directory-settings
+	ansar set retry group.default --property-file=back-end-retry
 
 directory-lan: home
 	ansar add ansar-fixed directory-lan
+	ansar add ansar-instant instant-host
 	ansar settings directory-lan --settings-file=directory-lan-settings
-	ansar run --group-name=directory-lan --create-group
-	ansar settings group.directory-lan --settings-file=group-directory-lan-settings
-	ansar set retry group.directory-lan --property-file=back-end-retry
+	ansar settings instant-host --settings-file=instant-lan-settings
+	ansar run --group-name=default --create-group
+	ansar settings group.default --settings-file=group-directory-settings
+	ansar set retry group.default --property-file=back-end-retry
 
 clean-home:: clean-build
 	ansar -f destroy
@@ -107,7 +112,7 @@ define D_HOST_START
 #!/usr/bin/env bash
 cd $(PWD)
 source .dev/bin/activate
-ansar start directory-host --group-name=directory-host
+ansar start directory-host
 endef
 
 define D_HOST_STOP
@@ -142,7 +147,7 @@ define D_LAN_START
 #!/usr/bin/env bash
 cd $(PWD)
 source .dev/bin/activate
-ansar start directory-lan --group-name=directory-lan
+ansar start directory-lan
 endef
 
 define D_LAN_STOP
