@@ -1,0 +1,14 @@
+{
+    "value": {
+        "connect_above": [
+            "ansar.connect.socketry.HostPort",
+            {},
+            []
+        ],
+        "directory_scope": "LAN",
+        "public_access": {
+            "host": "0.0.0.0",
+            "port": 32177
+        }
+    }
+}
