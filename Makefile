@@ -112,14 +112,14 @@ define D_HOST_START
 #!/usr/bin/env bash
 cd $(PWD)
 source .dev/bin/activate
-ansar start directory-host
+ansar start
 endef
 
 define D_HOST_STOP
 #!/usr/bin/env bash
 cd $(PWD)
 source .dev/bin/activate
-ansar --force stop directory-host
+ansar --force stop
 endef
 
 #
@@ -147,14 +147,14 @@ define D_LAN_START
 #!/usr/bin/env bash
 cd $(PWD)
 source .dev/bin/activate
-ansar start directory-lan
+ansar start
 endef
 
 define D_LAN_STOP
 #!/usr/bin/env bash
 cd $(PWD)
 source .dev/bin/activate
-ansar --force stop directory-lan
+ansar --force stop
 endef
 
 # Form a systemd service.
