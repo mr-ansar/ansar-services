@@ -77,9 +77,9 @@ directory-host: home
 
 directory-lan: home
 	ansar add ansar-fixed directory-lan
-	ansar add ansar-instant instant-host
+	ansar add ansar-instant instant-lan
 	ansar settings directory-lan --settings-file=directory-lan-settings
-	ansar settings instant-host --settings-file=instant-lan-settings
+	ansar settings instant-lan --settings-file=instant-lan-settings
 	ansar run --group-name=default --create-group
 	ansar settings group.default --settings-file=group-directory-settings
 	ansar set retry group.default --property-file=back-end-retry
