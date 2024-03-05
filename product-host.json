@@ -1,0 +1,15 @@
+{
+	"value": [
+	    "ansar.connect.instant.ProductAccess",
+	    {
+			"access_ipp": {
+				"host": "127.0.0.1",
+				"port": 32177
+			},
+			"product_name": "acme",
+			"product_instance": "development"
+	    },
+	    []
+	]
+}
+

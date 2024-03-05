@@ -1,0 +1,9 @@
+{
+    "value": {
+        "directory_scope": "HOST",
+        "public_access": {
+            "host": "127.0.0.1",
+            "port": 32177
+        }
+    }
+}
