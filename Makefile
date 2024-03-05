@@ -20,6 +20,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+ID_USER=$(shell id --user --name)
+ID_GROUP=$(shell id --group --name)
 BACK?=10m
 
 # Normal use;
@@ -85,7 +87,8 @@ directory-lan: home
 	ansar set retry group.default --property-file=back-end-retry
 
 clean-home:: clean-build
-	ansar -f destroy
+	-rm *-start *-stop *.service
+	-ansar -f destroy
 
 # Create the service files as a collection of long-form make strings.
 SYSTEM_D=/etc/systemd/system
@@ -99,7 +102,8 @@ Description=Ansar Directory (HOST)
 After=network.target
 
 [Service]
-User=$(USERNAME)
+User=$(ID_USER)
+Group=$(ID_GROUP)
 Type=forking
 ExecStart=/usr/bin/env $(PWD)/$(DIRECTORY_HOST)-start
 ExecStop=/usr/bin/env $(PWD)/$(DIRECTORY_HOST)-stop
@@ -134,7 +138,8 @@ Description=Ansar Directory (LAN)
 After=network.target
 
 [Service]
-User=$(USERNAME)
+User=$(ID_USER)
+Group=$(ID_GROUP)
 Type=forking
 ExecStart=/usr/bin/env $(PWD)/$(DIRECTORY_LAN)-start
 ExecStop=/usr/bin/env $(PWD)/$(DIRECTORY_LAN)-stop
