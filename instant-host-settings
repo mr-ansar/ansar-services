@@ -1,10 +1,5 @@
 {
     "value": {
-        "connect_above": [
-            "ansar.connect.socketry.HostPort",
-            {},
-            []
-        ],
         "directory_scope": "HOST",
         "public_access": {
             "host": "127.0.0.1",
