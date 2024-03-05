@@ -35,7 +35,7 @@ all:
 	@echo '$$ make log BACK=10d'
 
 # Useful lists of file names relating to executables
-EXECUTABLES := ansar-group ansar-fixed ansar-instant
+EXECUTABLES := ansar-group ansar-fixed ansar-product
 BUILD := $(EXECUTABLES:%=dist/%)
 
 # Default rule to turn a python script into an executable.
@@ -49,8 +49,8 @@ dist/ansar-group:
 dist/ansar-fixed:
 	pyinstaller --onefile --log-level ERROR -p . `which ansar-fixed`
 
-dist/ansar-instant:
-	pyinstaller --onefile --log-level ERROR -p . `which ansar-instant`
+dist/ansar-product:
+	pyinstaller --onefile --log-level ERROR -p . `which ansar-product`
 
 # Build portable images of the python scripts
 build:: $(BUILD)
@@ -70,18 +70,18 @@ home: $(ANSAR)
 # Populate the container with images for specific targets.
 directory-host: home
 	ansar add ansar-fixed directory-host
-	ansar add ansar-instant instant-host
+	ansar add ansar-product product-host
 	ansar settings directory-host --settings-file=directory-host-settings
-	ansar settings instant-host --settings-file=instant-host-settings
+	ansar settings product-host --settings-file=product-host-settings
 	ansar run --group-name=default --create-group
 	ansar settings group.default --settings-file=group-directory-settings
 	ansar set retry group.default --property-file=back-end-retry
 
 directory-lan: home
 	ansar add ansar-fixed directory-lan
-	ansar add ansar-instant instant-lan
+	ansar add ansar-product product-lan
 	ansar settings directory-lan --settings-file=directory-lan-settings
-	ansar settings instant-lan --settings-file=instant-lan-settings
+	ansar settings product-lan --settings-file=product-lan-settings
 	ansar run --group-name=default --create-group
 	ansar settings group.default --settings-file=group-directory-settings
 	ansar set retry group.default --property-file=back-end-retry
@@ -115,14 +115,14 @@ endef
 define D_HOST_START
 #!/usr/bin/env bash
 cd $(PWD)
-source .dev/bin/activate
+source .services/bin/activate
 ansar start
 endef
 
 define D_HOST_STOP
 #!/usr/bin/env bash
 cd $(PWD)
-source .dev/bin/activate
+source .services/bin/activate
 ansar --force stop
 endef
 
@@ -151,14 +151,14 @@ endef
 define D_LAN_START
 #!/usr/bin/env bash
 cd $(PWD)
-source .dev/bin/activate
+source .services/bin/activate
 ansar start
 endef
 
 define D_LAN_STOP
 #!/usr/bin/env bash
 cd $(PWD)
-source .dev/bin/activate
+source .services/bin/activate
 ansar --force stop
 endef
 
