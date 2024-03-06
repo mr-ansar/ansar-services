@@ -20,6 +20,8 @@
 # LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
+LOGS?=''
+
 ID_USER=$(shell id --user --name)
 ID_GROUP=$(shell id --group --name)
 BACK?=10m
@@ -62,7 +64,11 @@ clean-build::
 ANSAR=.ansar-home
 
 $(ANSAR): build
-	ansar create
+	if [ -z "$(LOGS)" ]; then \
+		ansar create; \
+	else \
+		ansar create --redirect-logs=$(LOGS); \
+	fi
 	ansar deploy dist
 
 home: $(ANSAR)
