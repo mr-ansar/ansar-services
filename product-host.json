@@ -1,6 +1,6 @@
 {
 	"value": [
-	    "ansar.connect.instant.ProductAccess",
+	    "ansar.connect.product.ProductAccess",
 	    {
 			"access_ipp": {
 				"host": "127.0.0.1",
