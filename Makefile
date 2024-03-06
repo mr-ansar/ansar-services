@@ -87,7 +87,6 @@ directory-lan: home
 	ansar set retry group.default --property-file=back-end-retry
 
 clean-home:: clean-build
-	-rm *-start *-stop *.service
 	-ansar -f destroy
 
 # Create the service files as a collection of long-form make strings.
