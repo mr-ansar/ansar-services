@@ -1,8 +1,8 @@
 ls *.service
 make stop
-make clean-directory-lan clean-home
+make clean-ansar-host clean-home
 git pull
 pip3 uninstall -y ansar-connect; pip3 uninstall -y ansar-create; pip3 uninstall -y ansar-encode
 pip3 install ansar-connect
-make directory-lan-service
+make ansar-host-service
 make start

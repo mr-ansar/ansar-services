@@ -1,5 +1,9 @@
 {
     "value": {
+        "accept_below": {
+                "host": "0.0.0.0",
+                "port": 32177
+	},
         "connect_above": [
             "ansar.connect.socketry.HostPort",
             {
@@ -8,7 +12,6 @@
             },
             []
         ],
-        "forwarding": false
+        "directory_scope": "LAN"
     }
 }
-

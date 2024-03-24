@@ -26,13 +26,12 @@ BACK?=10m
 
 # Normal use;
 all:
-	@echo 'Build host or lan services "directory-host-service" or "directory-lan-service"'
+	@echo 'Build host or lan services "ansar-host-service" or "ansar-lan-service"
 	@echo 'Refer to README for details on setup of python environment.'
 	@echo 'Then use "start" to execute the related software under the systemd framework.'
-	@echo '$$ make directory-host-service'
+	@echo '$$ make ansar-host-service'
 	@echo '$$ make start'
 	@echo '$$ make status'
-	@echo '$$ make log BACK=10d'
 
 # Useful lists of file names relating to executables
 EXECUTABLES := ansar-group ansar-fixed ansar-product
@@ -68,32 +67,36 @@ $(ANSAR): build
 home: $(ANSAR)
 
 # Populate the container with images for specific targets.
-directory-host: home
-	ansar add ansar-fixed directory-host
-	ansar add ansar-product product-host
-	ansar settings directory-host --settings-file=directory-host-settings
-	ansar settings product-host --settings-file=product-host-settings
+ansar-host: home
+	ansar add ansar-fixed reserved-host
+	ansar add ansar-fixed dedicated-host
+	ansar add ansar-product shared-host
+	ansar settings reserved-host --settings-file=reserved-host.settings
+	ansar settings dedicated-host --settings-file=dedicated-host.settings
+	ansar settings shared-host --settings-file=shared-host.settings
 	ansar run --group-name=default --create-group
-	ansar settings group.default --settings-file=group-directory-settings
-	ansar set retry group.default --property-file=back-end-retry
+	ansar settings group.default --settings-file=group-default.settings
+	ansar set retry group.default --property-file=back-end.retry
 
-directory-lan: home
-	ansar add ansar-fixed directory-lan
-	ansar add ansar-product product-lan
-	ansar settings directory-lan --settings-file=directory-lan-settings
-	ansar settings product-lan --settings-file=product-lan-settings
+ansar-lan: home
+	ansar add ansar-fixed reserved-lan
+	ansar add ansar-fixed dedicated-lan
+	ansar add ansar-product shared-lan
+	ansar settings reserved-lan --settings-file=reserved-lan.settings
+	ansar settings dedicated-lan --settings-file=dedicated-lan.settings
+	ansar settings shared-lan --settings-file=shared-lan.settings
 	ansar run --group-name=default --create-group
-	ansar settings group.default --settings-file=group-directory-settings
-	ansar set retry group.default --property-file=back-end-retry
+	ansar settings group.default --settings-file=group-default.settings
+	ansar set retry group.default --property-file=back-end.retry
 
 clean-home:: clean-build
-	-ansar -f destroy
+	-rm -rf .ansar-home
 
 # Create the service files as a collection of long-form make strings.
 SYSTEM_D=/etc/systemd/system
-DIRECTORY_HOST=ansar-host
-DIRECTORY_HOST_SERVICE=$(DIRECTORY_HOST).service
-DIRECTORY_HOST_INSTALLED=$(SYSTEM_D)/$(DIRECTORY_HOST_SERVICE)
+ANSAR_HOST=ansar-host
+ANSAR_HOST_SERVICE=$(ANSAR_HOST).service
+ANSAR_HOST_INSTALLED=$(SYSTEM_D)/$(ANSAR_HOST_SERVICE)
 
 define D_HOST_SERVICE
 [Unit]
@@ -104,8 +107,8 @@ After=network.target
 User=$(ID_USER)
 Group=$(ID_GROUP)
 Type=forking
-ExecStart=/usr/bin/env $(PWD)/$(DIRECTORY_HOST)-start
-ExecStop=/usr/bin/env $(PWD)/$(DIRECTORY_HOST)-stop
+ExecStart=/usr/bin/env $(PWD)/$(ANSAR_HOST)-start
+ExecStop=/usr/bin/env $(PWD)/$(ANSAR_HOST)-stop
 
 [Install]
 WantedBy=multi-user.target
@@ -127,9 +130,9 @@ endef
 
 #
 #
-DIRECTORY_LAN=ansar-lan
-DIRECTORY_LAN_SERVICE=$(DIRECTORY_LAN).service
-DIRECTORY_LAN_INSTALLED=$(SYSTEM_D)/$(DIRECTORY_LAN_SERVICE)
+ANSAR_LAN=ansar-lan
+ANSAR_LAN_SERVICE=$(ANSAR_LAN).service
+ANSAR_LAN_INSTALLED=$(SYSTEM_D)/$(ANSAR_LAN_SERVICE)
 
 define D_LAN_SERVICE
 [Unit]
@@ -140,8 +143,8 @@ After=network.target
 User=$(ID_USER)
 Group=$(ID_GROUP)
 Type=forking
-ExecStart=/usr/bin/env $(PWD)/$(DIRECTORY_LAN)-start
-ExecStop=/usr/bin/env $(PWD)/$(DIRECTORY_LAN)-stop
+ExecStart=/usr/bin/env $(PWD)/$(ANSAR_LAN)-start
+ExecStop=/usr/bin/env $(PWD)/$(ANSAR_LAN)-stop
 
 [Install]
 WantedBy=multi-user.target
@@ -166,70 +169,70 @@ endef
 # Link service file into systemd
 # Use systemctl commands to install the service.
 export D_HOST_SERVICE
-$(DIRECTORY_HOST).service:
-	echo "$$D_HOST_SERVICE" > $(DIRECTORY_HOST).service
-	chmod 644 $(DIRECTORY_HOST).service
+$(ANSAR_HOST).service:
+	echo "$$D_HOST_SERVICE" > $(ANSAR_HOST).service
+	chmod 644 $(ANSAR_HOST).service
 
 export D_HOST_START
-$(DIRECTORY_HOST)-start:
-	echo "$$D_HOST_START" > $(DIRECTORY_HOST)-start
-	chmod 775 $(DIRECTORY_HOST)-start
+$(ANSAR_HOST)-start:
+	echo "$$D_HOST_START" > $(ANSAR_HOST)-start
+	chmod 775 $(ANSAR_HOST)-start
 
 export D_HOST_STOP
-$(DIRECTORY_HOST)-stop:
-	echo "$$D_HOST_STOP" > $(DIRECTORY_HOST)-stop
-	chmod 775 $(DIRECTORY_HOST)-stop
+$(ANSAR_HOST)-stop:
+	echo "$$D_HOST_STOP" > $(ANSAR_HOST)-stop
+	chmod 775 $(ANSAR_HOST)-stop
 
-directory-host-files: $(DIRECTORY_HOST).service $(DIRECTORY_HOST)-start $(DIRECTORY_HOST)-stop
+ansar-host-files: $(ANSAR_HOST).service $(ANSAR_HOST)-start $(ANSAR_HOST)-stop
 
-$(DIRECTORY_HOST_INSTALLED): directory-host directory-host-files
-	sudo ln $(DIRECTORY_HOST_SERVICE) $(SYSTEM_D)
+$(ANSAR_HOST_INSTALLED): ansar-host ansar-host-files
+	sudo ln $(ANSAR_HOST_SERVICE) $(SYSTEM_D)
 	sudo systemctl daemon-reload
-	sudo systemctl enable $(DIRECTORY_HOST_SERVICE)
+	sudo systemctl enable $(ANSAR_HOST_SERVICE)
 
-directory-host-service: $(DIRECTORY_HOST_INSTALLED)
+ansar-host-service: $(ANSAR_HOST_INSTALLED)
 
-clean-directory-host:
-	[ -e "$(DIRECTORY_HOST_INSTALLED)" ]
-	sudo systemctl stop $(DIRECTORY_HOST_SERVICE)
-	sudo systemctl disable $(DIRECTORY_HOST_SERVICE)
+clean-ansar-host:
+	[ -e "$(ANSAR_HOST_INSTALLED)" ]
+	sudo systemctl stop $(ANSAR_HOST_SERVICE)
+	sudo systemctl disable $(ANSAR_HOST_SERVICE)
 	sudo systemctl daemon-reload
-	sudo rm $(DIRECTORY_HOST_INSTALLED)
-	sudo rm $(DIRECTORY_HOST).service $(DIRECTORY_HOST)-start $(DIRECTORY_HOST)-stop
+	sudo rm $(ANSAR_HOST_INSTALLED)
+	sudo rm $(ANSAR_HOST).service $(ANSAR_HOST)-start $(ANSAR_HOST)-stop
 
 #
 #
 export D_LAN_SERVICE
-$(DIRECTORY_LAN).service:
-	echo "$$D_LAN_SERVICE" > $(DIRECTORY_LAN).service
-	chmod 644 $(DIRECTORY_LAN).service
+$(ANSAR_LAN).service:
+	echo "$$D_LAN_SERVICE" > $(ANSAR_LAN).service
+	chmod 644 $(ANSAR_LAN).service
 
 export D_LAN_START
-$(DIRECTORY_LAN)-start:
-	echo "$$D_LAN_START" > $(DIRECTORY_LAN)-start
-	chmod 775 $(DIRECTORY_LAN)-start
+$(ANSAR_LAN)-start:
+	echo "$$D_LAN_START" > $(ANSAR_LAN)-start
+	chmod 775 $(ANSAR_LAN)-start
 
 export D_LAN_STOP
-$(DIRECTORY_LAN)-stop:
-	echo "$$D_LAN_STOP" > $(DIRECTORY_LAN)-stop
-	chmod 775 $(DIRECTORY_LAN)-stop
+$(ANSAR_LAN)-stop:
+	echo "$$D_LAN_STOP" > $(ANSAR_LAN)-stop
+	chmod 775 $(ANSAR_LAN)-stop
 
-directory-lan-files: $(DIRECTORY_LAN).service $(DIRECTORY_LAN)-start $(DIRECTORY_LAN)-stop
+ansar-lan-files: $(ANSAR_LAN).service $(ANSAR_LAN)-start $(ANSAR_LAN)-stop
 
-$(DIRECTORY_LAN_INSTALLED): directory-lan directory-lan-files
-	sudo ln $(DIRECTORY_LAN_SERVICE) $(SYSTEM_D)
+$(ANSAR_LAN_INSTALLED): ansar-lan ansar-lan-files
+	sudo ln $(ANSAR_LAN_SERVICE) $(SYSTEM_D)
 	sudo systemctl daemon-reload
-	sudo systemctl enable $(DIRECTORY_LAN_SERVICE)
+	sudo systemctl enable $(ANSAR_LAN_SERVICE)
 
-directory-lan-service: $(DIRECTORY_LAN_INSTALLED)
+ansar-lan-service: $(ANSAR_LAN_INSTALLED)
 
-clean-directory-lan:
-	[ -e "$(DIRECTORY_LAN_INSTALLED)" ]
-	sudo systemctl stop $(DIRECTORY_LAN_SERVICE)
-	sudo systemctl disable $(DIRECTORY_LAN_SERVICE)
+clean-ansar-lan:
+	[ -e "$(ANSAR_LAN_INSTALLED)" ]
+	sudo systemctl stop $(ANSAR_LAN_SERVICE)
+	sudo systemctl disable $(ANSAR_LAN_SERVICE)
 	sudo systemctl daemon-reload
-	sudo rm $(DIRECTORY_LAN_INSTALLED)
-	sudo rm $(DIRECTORY_LAN).service $(DIRECTORY_LAN)-start $(DIRECTORY_LAN)-stop
+	sudo rm $(ANSAR_LAN_INSTALLED)
+	sudo rm $(ANSAR_LAN).service $(ANSAR_LAN)-start $(ANSAR_LAN)-stop
 
 # A few shorthands. Note use of ansar command
 # for status and log. Ansar can only be used in a
@@ -245,5 +248,5 @@ status:
 
 # Extract a page of logging for the installed service.
 log:
-	-@[ -e ansar-host.service ] && ansar log directory-host --back=$(BACK) "--count=`tput lines`" || true
-	-@[ -e ansar-lan.service ] && ansar log directory-lan --back=$(BACK) "--count=`tput lines`" || true
+	-@[ -e ansar-host.service ] && ansar log ansar-host --back=$(BACK) "--count=`tput lines`" || true
+	-@[ -e ansar-lan.service ] && ansar log ansar-lan --back=$(BACK) "--count=`tput lines`" || true

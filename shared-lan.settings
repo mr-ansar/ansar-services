@@ -3,7 +3,7 @@
         "directory_scope": "LAN",
         "public_access": {
             "host": "0.0.0.0",
-            "port": 32177
+            "port": 32178
         }
     }
 }
