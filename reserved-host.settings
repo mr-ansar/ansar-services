@@ -7,8 +7,8 @@
         "connect_above": [
             "ansar.connect.socketry.HostPort",
             {
-                null,
-                null
+                "host": null,
+                "host": null
             },
             []
         ],
