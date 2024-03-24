@@ -245,8 +245,3 @@ stop:
 
 status:
 	@ansar status -ll -ar -g
-
-# Extract a page of logging for the installed service.
-log:
-	-@[ -e ansar-host.service ] && ansar log ansar-host --back=$(BACK) "--count=`tput lines`" || true
-	-@[ -e ansar-lan.service ] && ansar log ansar-lan --back=$(BACK) "--count=`tput lines`" || true
