@@ -22,7 +22,6 @@
 # SOFTWARE.
 ID_USER=$(shell id --user --name)
 ID_GROUP=$(shell id --group --name)
-BACK?=10m
 
 # Normal use;
 all:
@@ -34,7 +33,7 @@ all:
 	@echo '$$ make status'
 
 # Useful lists of file names relating to executables
-EXECUTABLES := ansar-group ansar-fixed ansar-product
+EXECUTABLES := ansar-group ansar-directory shared-directory
 BUILD := $(EXECUTABLES:%=dist/%)
 
 # Default rule to turn a python script into an executable.
@@ -45,11 +44,11 @@ dist/% : %.py
 dist/ansar-group:
 	pyinstaller --onefile --log-level ERROR -p . `which ansar-group`
 
-dist/ansar-fixed:
-	pyinstaller --onefile --log-level ERROR -p . `which ansar-fixed`
+dist/ansar-directory:
+	pyinstaller --onefile --log-level ERROR -p . `which ansar-directory`
 
-dist/ansar-product:
-	pyinstaller --onefile --log-level ERROR -p . `which ansar-product`
+dist/shared-directory:
+	pyinstaller --onefile --log-level ERROR -p . `which shared-directory`
 
 # Build portable images of the python scripts
 build:: $(BUILD)
@@ -68,9 +67,9 @@ home: $(ANSAR)
 
 # Populate the container with images for specific targets.
 ansar-host: home
-	ansar add ansar-fixed reserved-host
-	ansar add ansar-fixed dedicated-host
-	ansar add ansar-product shared-host
+	ansar add ansar-directory reserved-host
+	ansar add ansar-directory dedicated-host
+	ansar add shared-directory shared-host
 	ansar settings reserved-host --settings-file=reserved-host.settings
 	ansar settings dedicated-host --settings-file=dedicated-host.settings
 	ansar settings shared-host --settings-file=shared-host.settings
@@ -79,9 +78,9 @@ ansar-host: home
 	ansar set retry group.default --property-file=back-end.retry
 
 ansar-lan: home
-	ansar add ansar-fixed reserved-lan
-	ansar add ansar-fixed dedicated-lan
-	ansar add ansar-product shared-lan
+	ansar add ansar-directory reserved-lan
+	ansar add ansar-directory dedicated-lan
+	ansar add shared-directory shared-lan
 	ansar settings reserved-lan --settings-file=reserved-lan.settings
 	ansar settings dedicated-lan --settings-file=dedicated-lan.settings
 	ansar settings shared-lan --settings-file=shared-lan.settings
