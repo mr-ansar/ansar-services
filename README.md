@@ -19,7 +19,7 @@ host designated to be the ansar LAN directory.
 > Default use of the commands in this repo assume a standard configuration
 > for ansar networking. This includes use of a standard port (32175) and a
 > standard IP address (192.168.1.176). Different values can be adopted by editing
-> the directory-host-settings and directory-lan-settings files before service
+> the ansar-host.settings and ansar-lan.settings files before service
 > construction begins. Use of non-standard values requires on-going administrative
 > discipline. Refer to ansar-connect documentation for further details.
 
@@ -32,7 +32,7 @@ cd ansar-services
 python3 -m venv .services
 source .services/bin/activate
 pip3 install pyinstaller ansar-connect
-make directory-host-service
+make ansar-host-service
 make start
 make status
 make log
@@ -50,7 +50,7 @@ cd ansar-services
 python3 -m venv .services
 source .services/bin/activate
 pip3 install pyinstaller ansar-connect
-make directory-lan-service
+make ansar-lan-service
 make start
 make status
 make log
