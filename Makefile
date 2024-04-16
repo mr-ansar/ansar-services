@@ -38,17 +38,17 @@ BUILD := $(EXECUTABLES:%=dist/%)
 
 # Default rule to turn a python script into an executable.
 dist/% : %.py
-	pyinstaller --onefile --log-level ERROR -p . $<
+	pyinstaller --onefile --hidden-import=_cffi_backend --log-level ERROR -p . $<
 
 # Specific rules for library scripts.
 dist/ansar-group:
-	pyinstaller --onefile --log-level ERROR -p . `which ansar-group`
+	pyinstaller --onefile --hidden-import=_cffi_backend --log-level ERROR -p . `which ansar-group`
 
 dist/ansar-directory:
-	pyinstaller --onefile --log-level ERROR -p . `which ansar-directory`
+	pyinstaller --onefile --hidden-import=_cffi_backend --log-level ERROR -p . `which ansar-directory`
 
 dist/shared-directory:
-	pyinstaller --onefile --log-level ERROR -p . `which shared-directory`
+	pyinstaller --onefile --hidden-import=_cffi_backend --log-level ERROR -p . `which shared-directory`
 
 # Build portable images of the python scripts
 build:: $(BUILD)
