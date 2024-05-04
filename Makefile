@@ -243,4 +243,4 @@ stop:
 	sudo systemctl stop *.service
 
 status:
-	@ansar status -ll -ar -g
+	sudo systemctl status *.service
