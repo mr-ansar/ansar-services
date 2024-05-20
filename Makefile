@@ -23,6 +23,8 @@
 ID_USER=$(shell id --user --name)
 ID_GROUP=$(shell id --group --name)
 
+CUSTOM_PORT?=0
+
 # Normal use;
 all:
 	@echo 'Build host or lan services "ansar-host-service" or "ansar-lan-service"
@@ -73,6 +75,9 @@ ansar-host: home
 	ansar settings reserved-host --settings-file=reserved-host.settings
 	ansar settings dedicated-host --settings-file=dedicated-host.settings
 	ansar settings shared-host --settings-file=shared-host.settings
+	ansar update reserved-host --custom-port=$(CUSTOM_PORT)
+	ansar update dedicated-host --custom-port=$(CUSTOM_PORT)
+	ansar update shared-host --custom-port=$(CUSTOM_PORT)
 	ansar run --group-name=default --create-group
 	ansar settings group.default --settings-file=group-default.settings
 	ansar set retry group.default --property-file=back-end.retry
@@ -84,6 +89,9 @@ ansar-lan: home
 	ansar settings reserved-lan --settings-file=reserved-lan.settings
 	ansar settings dedicated-lan --settings-file=dedicated-lan.settings
 	ansar settings shared-lan --settings-file=shared-lan.settings
+	ansar update reserved-host --custom-port=$(CUSTOM_PORT)
+	ansar update dedicated-host --custom-port=$(CUSTOM_PORT)
+	ansar update shared-host --custom-port=$(CUSTOM_PORT)
 	ansar run --group-name=default --create-group
 	ansar settings group.default --settings-file=group-default.settings
 	ansar set retry group.default --property-file=back-end.retry
